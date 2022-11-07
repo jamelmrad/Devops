@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,78 +21,70 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @Slf4j
 public class OperateurServiceImplTest {
-
-    //maybe delete @SpringBoot test ???? !! check mail or classroom
-    /** delete all comments before pushing code into github*/
-
-    @Autowired
-    IOperateurService operateurService;
-
     @Mock
     OperateurRepository operateurRepository;
+    @InjectMocks
+    OperateurServiceImpl operateurService;
 
     Operateur o = new Operateur("Mrad","Jamel","mot de passe");
+    List<Operateur> operateurList =  new ArrayList<Operateur>(){
+        {
+            add(new Operateur("Mrad","Jamel","mot de passe"));
+            add(new Operateur("Mrad","Jamel","mot de passe"));
+        }
+    };
 
 
-    @Test
-    void contextLoads() {
-
-    }
-
+    @Test()
     public void testRetrieveAll(){
-        //List<Operateur>
-        Operateur operateurUn = new Operateur("leo","messi","mot de passe");
-        Operateur operateurDeux = new Operateur("ricardo","kaka","mot de passe");
-
-        List<Operateur> list = new ArrayList<Operateur>();
-        list.add(operateurUn);
-        list.add(operateurDeux);
-
-        when(operateurRepository.findAll()).thenReturn(list);
-
-        //test
-        //??
+        Mockito.when(operateurRepository.findAll()).thenReturn(operateurList);
+        List<Operateur> lo = operateurService.retrieveAllOperateurs();
+        assertEquals(2,lo.size());
+        log.warn("LIST OF OPERAOTRS : ");
+        for (Operateur x:   lo
+             ) {
+            log.info(x.toString());
+        }
     }
 
     @Test()
     public void testAdd() {
-        Operateur operateur = new Operateur("Mrad","Jamel","mot de passe");
-        Operateur o = operateurService.addOperateur(operateur);
-        log.info("Operatuer :" + o);
-        Assertions.assertNotNull(o.getIdOperateur());
+        Mockito.when(operateurRepository.save(o)).thenReturn(o);
+        Operateur lf = operateurService.addOperateur(o);
+        log.info("OPERATEUR =====> : " + lf.toString());
+        assertNotNull(lf);
     }
 
     @Test()
     public void testDelete(){
-        Operateur ex = mock(Operateur.class);
-
-        /**
-         *  Mockito.when(applicationService.removeById(10001L)).thenReturn("SUCCESS");
-         *         mockMvc.perform(MockMvcRequestBuilders.delete("/applications", 10001L))
-         *                 .andExpect(status().isOk());
-         */
-
-
+        Mockito.doNothing().when(operateurRepository).deleteById(Mockito.anyLong());
+        operateurService.deleteOperateur(3L);
+        Mockito.verify(operateurRepository, Mockito.times(1)).deleteById(3L);
+        log.info("DELETED SUCCFULLY !");
     }
 
+    @Test()
     public void testUpdate(){
-        //operateur
+        Mockito.when(operateurRepository.save(o)).thenReturn(o);
+        Operateur f = operateurService.updateOperateur(o);
+        assertNotNull(f);
+        log.info(f.toString());
     }
 
     @Test()
     public void testRetrieve(){
-        Mockito.when(operateurRepository.findById(Mockito.anyLong()))
-                .thenReturn(Optional.of(o));
-        Operateur operateur = operateurService.retrieveOperateur((long) 2);
-        assertNotNull(operateur);
-        log.info("get ===> " + operateur.toString());
+       Mockito.when(operateurRepository.findById(Mockito.anyLong()))
+               .thenReturn(Optional.of(o));
+       Operateur operateur = operateurService.retrieveOperateur(2L);
+       assertNotNull(operateur);
+       log.info(operateur.toString());
     }
 }
