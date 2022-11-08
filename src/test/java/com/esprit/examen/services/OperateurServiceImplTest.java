@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @Slf4j
-public class OperateurServiceImplTest {
+ class OperateurServiceImplTest {
     @Mock
     OperateurRepository operateurRepository;
     @InjectMocks
